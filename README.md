@@ -20,6 +20,7 @@ As part of the auditing responsibilities under our security plan, we needed a wa
  
 ## Scripts
 
+---
 ## Buildpack inspector
 
 Obtains the AS-IS buildpack information for applications your account has access to. This includes identifying (and color coding/flag) applications using out of date buildpacks. 
@@ -35,6 +36,7 @@ python cf_buildpack_inspector.py --report_file=C:\Users\Cooper\Desktop\2021-05-0
  - **report_file** - file path to where to save the MS Excel based results.
  - **cf_api_endpoint** - The endpoint of the Cloud Foundry API that you're assessing.
 
+---
 ## Configuration inspector
 
 Obtains the AS-IS Cloud Foundry organization, space, application, and service information that your account has access to. Pair this with a previous version of the output and it will allow you to see changes to your environment which can really help with auditing activities.
@@ -47,6 +49,7 @@ tbd
 **command line parameters**
  - **tbd** - tbd
 
+---
 ## Application resource inspector
 
 Obtains AS-IS application-level settings including organization, space, application name, number of application instances, memory, and diskspace.
@@ -57,6 +60,7 @@ python cf_application_resource_inspector.py
 **command line parameters**
  - None at this time, it just displays what your account has access to. Please submit an issue if additional functionality is needed.
 
+---
 ## Disclaimer
 
 The software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
