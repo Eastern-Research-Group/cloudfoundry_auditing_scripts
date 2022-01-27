@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import os
+import getopt
 import shutil
 import json
 import hashlib
@@ -11,9 +12,8 @@ from urllib.parse import unquote
 # Globals setup and directory location initiation
 ######################################################################################################
 
-start_path = os.getcwd()
 os.chdir("..")
-data_folder_path = os.getcwd() + "\\data"
+data_folder = ""
 end_point_version = '/v3/'
 per_page = 5000
 
@@ -252,8 +252,8 @@ def obtain_cf_data_for_entire_org(org_guid, org_name):
     print("Obtaining organization wide data for: " + org_name)
     print("==================================================================")
     os.system("cf target -o " + org_name)
-    os.chdir(data_folder_path)
-    cur_org_folder = data_folder_path + "\\orgs\\" + org_name
+    os.chdir(data_folder)
+    cur_org_folder = data_folder + "\\orgs\\" + org_name
     os.makedirs(cur_org_folder, exist_ok=True)
     os.chdir(cur_org_folder)
 
@@ -298,26 +298,38 @@ print("==================================================================")
 print("Set things up.")
 print("==================================================================")
 
-if os.path.exists(data_folder_path):
-    print("")
-    print("Its recommended that you delete the data folder before continuning.")
-    Fl = ''
-    while True:
-        print("")
-        query = input('Should the data folder be deleted? ')
-        Fl = query[0].lower()
-        if query == '' or not Fl in ['y', 'n']:
-            print('Please answer with y or n.')
-        else:
-            break
 
-    if Fl == 'y':
-        shutil.rmtree(data_folder_path)
-        os.mkdir(data_folder_path)
+full_cmd_arguments = sys.argv
+argument_list = full_cmd_arguments[1:]
+short_options = "d:r:"
+long_options = ["data_folder=", "remove_data_folder="]
+remove_folder_flag = False
+
+try:
+    arguments, values = getopt.getopt(
+        argument_list, short_options, long_options)
+except getopt.error as err:
+    print(str(err))
+    sys.exit(-1)
+
+for current_argument, current_value in arguments:
+    if current_argument in ("-d", "--data_folder"):
+        data_folder = current_value
+    if current_argument in ("-r", "--remove_data_folder"):
+        remove_folder_flag = current_value.lower()
+
+if data_folder == "":
+    print("The data_folder parameter must be specified.")
+    sys.exit(-2)
+
+if os.path.exists(data_folder):
+    if remove_folder_flag == "true":
+        shutil.rmtree(data_folder)
+        os.mkdir(data_folder)
 else:
-    os.mkdir(data_folder_path)
+    os.mkdir(data_folder)
 
-os.chdir(data_folder_path)
+os.chdir(data_folder)
 
 print("")
 print("==================================================================")

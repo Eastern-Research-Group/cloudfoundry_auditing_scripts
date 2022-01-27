@@ -166,7 +166,8 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
                 if "buildpacks" in droplet_json:
                     number_of_app_buildpacks = len(droplet_json["buildpacks"])
                 else:
-                    print("Error getting buildpack information: " + json.dumps(droplet_json))
+                    print("Error getting buildpack information: " +
+                          json.dumps(droplet_json))
 
             org_txt = run_api_cmd_rtn_json(["cf", "curl", remove_prefix(
                 d["links"]["space"]["href"], cf_api_endpoint)])
