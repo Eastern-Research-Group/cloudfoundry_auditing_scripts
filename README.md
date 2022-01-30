@@ -39,9 +39,13 @@ python cf_buildpack_inspector.py --report_file=C:\Users\Cooper\Desktop\2021-05-0
 ---
 ## Configuration inspector
 
-Obtains the AS-IS Cloud Foundry organization, space, application, and service information that your account has access to. Pair this with a previous version of the output and it will allow you to see changes to your environment which can really help with auditing activities.
+Obtains the AS-IS Cloud Foundry organization, space, application, and service information that your account has access to. Pair this with a previous version of the output and it will allow you to see changes to your environment which can really help with auditing activities. 
 
-We suggest that you create another private GitHub (or similar) version control repository to store the exported information. This will allow you to easily inspect the changes between runs using your preferred version control comparison tool. 
+Pair this with the results from our [Cloud Foundry Audit Events](https://github.com/Eastern-Research-Group/cloudfoundry_audit_events) script and you’ll obtain complete visibility into all the actions that took place from the baseline resulting in the latest configuration.
+
+We suggest that you create another private GitHub (or similar) version control repository to store the exported information. This will allow you to easily inspect the changes between runs using your preferred version control comparison tool.
+
+The script attempts to remove any sensitive information (user account running the script and environmental values (hashes its key/value pairs)). This makes comparing the baseline against the new run less noisy.
 
 **Example usage:**
 tbd
