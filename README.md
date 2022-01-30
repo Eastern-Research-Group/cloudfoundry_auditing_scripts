@@ -4,7 +4,7 @@ This repository contains miscellaneous scripts that can be used to audit various
 | Feature/Script| Description |
 | --- | ----------- |
 | Buildpack inspector| Obtains the AS-IS buildpack information for applications your account has access to. This includes identifying (and color coding/flag) applications using out of date buildpacks.|
-| Configuration inspector| Obtains the AS-IS Cloud Foundry organization, space, application, and service information that your account has access to. Pair this with a previous version of the output and it will allow you to see changes to your environment which can really help with auditing activities.|
+| Configuration inspector| Obtains the AS-IS Cloud Foundry organization, space, application, and service information that your account has access to. Pair this with a previous version of the output and it will allow you to see changes to your environment which can really help with auditing activities. <br><br>Pair this with the results from our [Cloud Foundry Audit Events](https://github.com/Eastern-Research-Group/cloudfoundry_audit_events) script and you’ll obtain complete visibility into all the actions that took place from the baseline resulting in the latest configuration.|
 | Application resource inspector| Obtains AS-IS application-level settings including organization, space, application name, number of application instances, memory, and diskspace. |
 
 ## Reason for its creation
