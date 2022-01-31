@@ -45,7 +45,7 @@ Pair this with the results from our [Cloud Foundry Audit Events](https://github.
 
 We suggest that you create another private GitHub (or similar) version control repository to store the exported information. This will allow you to easily inspect the changes between runs using your preferred version control comparison tool.
 
-The script attempts to remove any sensitive information (user account running the script and environmental values (hashes its key/value pairs)). This makes comparing the baseline against the new run less noisy.
+The script attempts to remove any sensitive information (user account running the script and environmental values (hashes its key/value pairs)). This makes comparing the baseline against the new run less noisy. In addition, data is saved in JSON (from the CF API) and TEXT (from the CLI) formats for completeness. When I do my auditing, I typically only review the .txt files for changes and if there is something off, I then look at the .json files and also the audit events from [Cloud Foundry Audit Events](https://github.com/Eastern-Research-Group/cloudfoundry_audit_events) script. The main difference, the .txt files don’t contain values that frequently change (e.g., timestamps from routine restage events, etc.) which can be rather noisy when trying to identify changes. 
 
 **Example usage:**
 tbd
