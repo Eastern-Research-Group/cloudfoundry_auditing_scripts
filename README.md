@@ -48,10 +48,11 @@ We suggest that you create another private GitHub (or similar) version control r
 The script attempts to remove any sensitive information (user account running the script and environmental values (hashes its key/value pairs)). This makes comparing the baseline against the new run less noisy. In addition, data is saved in JSON (from the CF API) and TEXT (from the CLI) formats for completeness. When I do my auditing, I typically only review the .txt files for changes and if there is something off, I then look at the .json files and also the audit events from [Cloud Foundry Audit Events](https://github.com/Eastern-Research-Group/cloudfoundry_audit_events) script. The main difference, the .txt files don’t contain values that frequently change (e.g., timestamps from routine restage events, etc.) which can be rather noisy when trying to identify changes. 
 
 **Example usage:**
-tbd
+python cf_configuration_inspector.py --data_folder=C:\Cooper\cf_test_org\data --remove_data_folder=true
 
 **command line parameters**
- - **tbd** - tbd
+ - **data_folder** - file path to where to save the extracted Cloud Foundry configuration information.
+ - **remove_data_folder** - Whether the existing **data_folder** location should be removed before running. This can help with auditing as it will show which files were deleted vs. just modified after the run.
 
 ---
 ## Application resource inspector
