@@ -102,6 +102,7 @@ def run_api_cmd_resources(url, filename):
     next_page = True
 
     while next_page:
+        print(url)
         data = get_cf_response(url)
         for resource in data['resources']:
             all_data['resources'].append(resource)
@@ -173,6 +174,8 @@ def obtain_cf_data_for_app(space_folder, org_name, space_name, space_guid, app_g
     # Tasks
     run_api_cmd_resources("/v3/apps/" + app_guid +
                           "/tasks?order_by=created_at&per_page=" + str(per_page), "app-tasks")
+    run_cli_cmd(["cf", "tasks", app_name], "tasks")
+
     # Droplets
     run_api_cmd("/v3/apps/" + app_guid +
                 "/droplets/current?order_by=created_at&per_page=" + str(per_page), "app-droplets")
@@ -222,6 +225,8 @@ def obtain_cf_data_for_entire_space(org_folder, org_name, space_guid, space_name
     # SPACE-USERS
     run_cli_cmd(["cf", "space-users", org_name,
                  space_name], "space-users")
+    # ROUTES
+    run_cli_cmd(["cf", "routes"], "routes")
     # NETWORK POLICIES
     run_cli_cmd(["cf", "network-policies"], "network-policies")
     # APPS
@@ -273,6 +278,8 @@ def obtain_cf_data_for_entire_org(org_guid, org_name):
         "/v3/space_quotas?order_by=created_at&per_page=" + str(per_page) + "&organization_guids="+org_guid, "space-quotas")
     run_quota_cmd_api(
         "/v3/organizations/" + org_guid, "org-quota", "org-quota")
+    # ROUTES
+    run_cli_cmd(["cf", "routes", "--org-level"], "routes")
     # DOMAINS
     run_cli_cmd(["cf", "domains"], "domains")
     run_api_cmd_resources(
