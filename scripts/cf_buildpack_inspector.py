@@ -120,33 +120,37 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
     b_audit_sheet["D1"].fill = HeaderColorFill
     b_audit_sheet["D1"].font = Font(bold=True)
 
-    b_audit_sheet["E1"] = "Buildpack Name"
+    b_audit_sheet["E1"] = "Stack"
     b_audit_sheet["E1"].fill = HeaderColorFill
     b_audit_sheet["E1"].font = Font(bold=True)
 
-    b_audit_sheet["F1"] = "Buildpack Status"
+    b_audit_sheet["F1"] = "Buildpack Name"
     b_audit_sheet["F1"].fill = HeaderColorFill
     b_audit_sheet["F1"].font = Font(bold=True)
 
-    b_audit_sheet["G1"] = "Application Buildpack Version"
+    b_audit_sheet["G1"] = "Buildpack Status"
     b_audit_sheet["G1"].fill = HeaderColorFill
     b_audit_sheet["G1"].font = Font(bold=True)
 
-    b_audit_sheet["H1"] = "Available Buildpack Version"
+    b_audit_sheet["H1"] = "Application Buildpack Version"
     b_audit_sheet["H1"].fill = HeaderColorFill
     b_audit_sheet["H1"].font = Font(bold=True)
 
-    b_audit_sheet["I1"] = "Last Application Updated On"
+    b_audit_sheet["I1"] = "Available Buildpack Version"
     b_audit_sheet["I1"].fill = HeaderColorFill
     b_audit_sheet["I1"].font = Font(bold=True)
 
-    b_audit_sheet["J1"] = "Available Buildpack Updated At"
+    b_audit_sheet["J1"] = "Last Application Updated On"
     b_audit_sheet["J1"].fill = HeaderColorFill
     b_audit_sheet["J1"].font = Font(bold=True)
 
-    b_audit_sheet["K1"] = "App Link"
+    b_audit_sheet["K1"] = "Available Buildpack Updated At"
     b_audit_sheet["K1"].fill = HeaderColorFill
     b_audit_sheet["K1"].font = Font(bold=True)
+
+    b_audit_sheet["L1"] = "App Link"
+    b_audit_sheet["L1"].fill = HeaderColorFill
+    b_audit_sheet["L1"].font = Font(bold=True)
 
     temp = run_api_cmd_rtn_json(
         ["cf", "curl", "/v3/apps?order_by=name&per_page=" + str(per_page) + ""+org_query+space_query])
@@ -157,14 +161,19 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
         for d in data["resources"]:
             number_of_app_buildpacks = 0
             if d["state"] == "STOPPED":
+                app_stack = "UNKNOWN"
                 number_of_app_buildpacks = len(
                     d["lifecycle"]["data"]["buildpacks"])
             else:
                 droplet_txt = run_api_cmd_rtn_json(["cf", "curl", remove_prefix(
                     d["links"]["current_droplet"]["href"], cf_api_endpoint)])
                 droplet_json = json.loads(droplet_txt)
+                app_stack = droplet_json["stack"]
                 if "buildpacks" in droplet_json:
-                    number_of_app_buildpacks = len(droplet_json["buildpacks"])
+                    if droplet_json["buildpacks"] == None:
+                        number_of_app_buildpacks = 0
+                    else:
+                        number_of_app_buildpacks = len(droplet_json["buildpacks"])
                 else:
                     print("Error getting buildpack information: " +
                           json.dumps(droplet_json))
@@ -179,6 +188,24 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
             if org != "UNKNOWN ORG" and space_name != "UNKNOWN SPACE":
                 space_name = remove_prefix(space_name, org+"-")
 
+            #DOCKER
+            if (number_of_app_buildpacks == 0):
+                ExcelRowRef += 1
+                print(org + ", " + space_name + ", " + d["name"])
+                b_audit_sheet["A" + str(ExcelRowRef)] = org
+                b_audit_sheet["B" + str(ExcelRowRef)] = space_name
+                b_audit_sheet["C" + str(ExcelRowRef)] = d["name"]
+                b_audit_sheet["D" + str(ExcelRowRef)] = d["state"]
+                b_audit_sheet["E" + str(ExcelRowRef)] = "UNKNOWN"
+                b_audit_sheet["F" + str(ExcelRowRef)] = "DOCKER" 
+                b_audit_sheet["G" + str(ExcelRowRef)] = "UNKNOWN" 
+                b_audit_sheet["H" + str(ExcelRowRef)] = "UNKNOWN" 
+                b_audit_sheet["I" + str(ExcelRowRef)] = "UNKNOWN" 
+                b_audit_sheet["J" + str(ExcelRowRef)] = d["updated_at"]
+                b_audit_sheet["K" + str(ExcelRowRef)] = "UNKNOWN" 
+                b_audit_sheet["L" + str(ExcelRowRef)] = "cf curl " + remove_prefix(
+                    d["links"]["self"]["href"], cf_api_endpoint)
+
             for x in range(0, number_of_app_buildpacks):
                 print(org + ", " + space_name + ", " + d["name"])
                 outdated_buildpack = False
@@ -187,6 +214,7 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
                 b_audit_sheet["B" + str(ExcelRowRef)] = space_name
                 b_audit_sheet["C" + str(ExcelRowRef)] = d["name"]
                 b_audit_sheet["D" + str(ExcelRowRef)] = d["state"]
+                b_audit_sheet["E" + str(ExcelRowRef)] = app_stack
 
                 buildpack_name_from_json = ""
                 if d["state"] == "STOPPED":
@@ -194,7 +222,7 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
                 else:
                     buildpack_name_from_json = droplet_json["buildpacks"][x]["name"]
 
-                b_audit_sheet["E" + str(ExcelRowRef)
+                b_audit_sheet["F" + str(ExcelRowRef)
                               ] = buildpack_name_from_json
 
                 b_ver = ""
@@ -205,41 +233,41 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
                         b_update_date = bpack_2["updated_at"]
 
                     if d["state"] == "STOPPED":
-                        b_audit_sheet["G" + str(ExcelRowRef)] = "Not available"
-                        b_audit_sheet["G" + str(ExcelRowRef)
+                        b_audit_sheet["H" + str(ExcelRowRef)] = "Not available"
+                        b_audit_sheet["H" + str(ExcelRowRef)
                                       ].font = Font(color='FF0000', bold=True)
                         outdated_buildpack = True
                     else:
                         if droplet_json["buildpacks"][x]["version"] is None:
-                            b_audit_sheet["G" +
+                            b_audit_sheet["H" +
                                           str(ExcelRowRef)] = "Not available"
                         else:
-                            b_audit_sheet["G" + str(ExcelRowRef)
+                            b_audit_sheet["H" + str(ExcelRowRef)
                                           ] = droplet_json["buildpacks"][x]["version"]
                         if b_ver is not None and b_ver != "" and droplet_json["buildpacks"][x]["version"] is not None and droplet_json["buildpacks"][x]["version"] != "":
                             if versiontuple(b_ver) > versiontuple(droplet_json["buildpacks"][x]["version"]):
-                                b_audit_sheet["G" + str(ExcelRowRef)
+                                b_audit_sheet["H" + str(ExcelRowRef)
                                               ].font = Font(color='FF0000', bold=True)
                                 outdated_buildpack = True
 
-                b_audit_sheet["H" + str(ExcelRowRef)] = b_ver
-                b_audit_sheet["I" + str(ExcelRowRef)] = d["updated_at"]
+                b_audit_sheet["I" + str(ExcelRowRef)] = b_ver
+                b_audit_sheet["J" + str(ExcelRowRef)] = d["updated_at"]
 
                 if d["updated_at"] is not None and d["updated_at"] != "" and b_update_date is not None and b_update_date != "":
                     if dateutil.parser.parse(d["updated_at"]) < dateutil.parser.parse(b_update_date):
-                        b_audit_sheet["J" + str(ExcelRowRef)
+                        b_audit_sheet["K" + str(ExcelRowRef)
                                       ].font = Font(color='FF0000', bold=True)
                         outdated_buildpack = True
 
                 if outdated_buildpack == True:
-                    b_audit_sheet["F" + str(ExcelRowRef)] = "Outdated"
-                    b_audit_sheet["F" + str(ExcelRowRef)
+                    b_audit_sheet["G" + str(ExcelRowRef)] = "Outdated"
+                    b_audit_sheet["G" + str(ExcelRowRef)
                                   ].font = Font(color='FF0000', bold=True)
                 else:
-                    b_audit_sheet["F" + str(ExcelRowRef)] = "Current"
+                    b_audit_sheet["G" + str(ExcelRowRef)] = "Current"
 
-                b_audit_sheet["J" + str(ExcelRowRef)] = b_update_date
-                b_audit_sheet["K" + str(ExcelRowRef)] = "cf curl " + remove_prefix(
+                b_audit_sheet["K" + str(ExcelRowRef)] = b_update_date
+                b_audit_sheet["L" + str(ExcelRowRef)] = "cf curl " + remove_prefix(
                     d["links"]["self"]["href"], cf_api_endpoint)
 
         if data["pagination"]["next"] is not None:
