@@ -191,7 +191,6 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
             if org != "UNKNOWN ORG" and space_name != "UNKNOWN SPACE":
                 space_name = remove_prefix(space_name, org+"-")
 
-            #DOCKER
             if (number_of_app_buildpacks == 0):
                 ExcelRowRef += 1
                 print(org + ", " + space_name + ", " + d["name"])
@@ -200,9 +199,14 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
                 b_audit_sheet["C" + str(ExcelRowRef)] = d["name"]
                 b_audit_sheet["D" + str(ExcelRowRef)] = d["state"]
                 b_audit_sheet["E" + str(ExcelRowRef)] = "UNKNOWN"
-                b_audit_sheet["F" + str(ExcelRowRef)] = "DOCKER" 
-                b_audit_sheet["G" + str(ExcelRowRef)] = "UNKNOWN" 
-                b_audit_sheet["H" + str(ExcelRowRef)] = "UNKNOWN" 
+                if d["lifecycle"]["type"] == "docker":
+                    b_audit_sheet["F" + str(ExcelRowRef)] = "DOCKER" 
+                else:
+                    b_audit_sheet["F" + str(ExcelRowRef)] = "UNKNOWN"
+                    b_audit_sheet["G" + str(ExcelRowRef)].font = Font(color='FF0000', bold=True)
+                    b_audit_sheet["H" + str(ExcelRowRef)].font = Font(color='FF0000', bold=True)
+                b_audit_sheet["G" + str(ExcelRowRef)] = "UNKNOWN"
+                b_audit_sheet["H" + str(ExcelRowRef)] = "UNKNOWN"
                 b_audit_sheet["I" + str(ExcelRowRef)] = "UNKNOWN" 
                 b_audit_sheet["J" + str(ExcelRowRef)] = d["updated_at"]
                 b_audit_sheet["K" + str(ExcelRowRef)] = "UNKNOWN" 
