@@ -162,8 +162,11 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
             number_of_app_buildpacks = 0
             if d["state"] == "STOPPED":
                 app_stack = "UNKNOWN"
-                number_of_app_buildpacks = len(
-                    d["lifecycle"]["data"]["buildpacks"])
+                if d["lifecycle"]["type"] == "docker":
+                    number_of_app_buildpacks = 0
+                else:
+                    number_of_app_buildpacks = len(
+                        d["lifecycle"]["data"]["buildpacks"])
             else:
                 droplet_txt = run_api_cmd_rtn_json(["cf", "curl", remove_prefix(
                     d["links"]["current_droplet"]["href"], cf_api_endpoint)])
