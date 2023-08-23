@@ -162,6 +162,14 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
             number_of_app_buildpacks = 0
             if d["state"] == "STOPPED":
                 app_stack = "UNKNOWN"
+
+                if "lifecycle" in d and d["lifecycle"] is not None \
+                    and "data" in d["lifecycle"] and d["lifecycle"]["data"] is not None \
+                    and "stack" in d["lifecycle"]["data"] and d["lifecycle"]["data"]["stack"] is not None:
+                    app_stack = d["lifecycle"]["data"]["stack"]
+                else:
+                    app_stack = "UNKNOWN"                   
+
                 if d["lifecycle"]["type"] == "docker":
                     number_of_app_buildpacks = 0
                 else:

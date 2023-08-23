@@ -1,3 +1,4 @@
+
 # Cloud Foundry Auditing Scripts
 
 This repository contains miscellaneous scripts that can be used to audit various aspects of Cloud Foundry from an organization, space, or application-level perspective. At this time, the following main features/scripts are supported:
@@ -6,10 +7,10 @@ This repository contains miscellaneous scripts that can be used to audit various
 | Buildpack inspector| Obtains the AS-IS buildpack information for applications your account has access to. This includes identifying (and color coding/flag) applications using out of date buildpacks.|
 | Configuration inspector| Obtains the AS-IS Cloud Foundry organization, space, application, and service information that your account has access to. Pair this with a previous version of the output and it will allow you to see changes to your environment which can really help with auditing activities. <br><br>Pair this with the results from our [Cloud Foundry Audit Events](https://github.com/Eastern-Research-Group/cloudfoundry_audit_events) script and you’ll obtain complete visibility into all the actions that took place from the baseline resulting in the latest configuration.|
 | Application resource inspector| Obtains AS-IS application-level settings including organization, space, application name, number of application instances, memory, and diskspace. |
-
+| Service account key check| Obtains AS-IS information about service keys (e.g., last update date) to help teams determine if keys need to be rotated (i.e. 60 or 90 day policy). |
 ## Reason for its creation
 
-As part of the auditing responsibilities under our security plan, we needed a way to easily access and continually reassess our Cloud Foundry organization, space, and application setup. The various outputs from these scripts can be used to compare against baseline configurations to monitor configuration drift.
+As part of the auditing responsibilities under our security plan, we needed a way to easily access and continually reassess our Cloud Foundry organization, space, and application setup. The various outputs from these scripts can be used to compare against baseline configurations, monitor configuration drift, and check for policy compliance (e.g., service key rotation is taking place).
 
 ## Initial goals
 
@@ -64,6 +65,18 @@ python cf_application_resource_inspector.py
 
 **command line parameters**
  - None at this time, it just displays what your account has access to. Please submit an issue if additional functionality is needed.
+---
+## Service account key check
+
+Obtains AS-IS information about service keys (e.g., last update date) to help teams determine if keys need to be rotated (i.e. 60 or 90 day policy).
+
+**Example usage:**
+python cf_service_account_key_check.py --cf_api_endpoint=https://api.fr.cloud.gov --report_file=C:\Users\BCooper\Desktop\service_key_check.xlsx --binding_type=key
+
+**command line parameters**
+ - **cf_api_endpoint** - Cloud Foundry API endpoint location.
+ - **report_file** - Local path and filename output should be saved to.
+ - **binding_type** - Values {app or key} or just don't use this parameter. Cloud Foundry applications and service_accounts bind to services, this allows you to filter which ones get included into the report_file.
 
 ---
 ## Disclaimer
