@@ -255,7 +255,6 @@ def service_key_audit(org_name, space_names, binding_type_filter, b_audit_sheet,
 
     ExcelRowRef = 1
     for d in new_data_obj["resources"]:
-       print(ExcelRowRef)
        ExcelRowRef += 1
        b_audit_sheet["A" + str(ExcelRowRef)] = d["org_name"]
        b_audit_sheet["B" + str(ExcelRowRef)] = d["space_name"]
