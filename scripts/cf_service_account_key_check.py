@@ -70,7 +70,7 @@ def run_api_cmd(cmd, filename):
 
 
 def run_api_rtn_json(url):
-    all_data = {'resources': []}
+    all_data = {'resources': [], 'apps': []}
     next_page = True
 
     while next_page:
@@ -78,7 +78,9 @@ def run_api_rtn_json(url):
         data = get_cf_response(url)
         for resource in data['resources']:
             all_data['resources'].append(resource)
-
+        if data['included'] is not None:
+            for apps in data['included']['apps']:
+                all_data['apps'].append(apps)
         try:
             # if this element exists, a subsequent page exists so get the new URL and continue iteration
             url = data['pagination']['next']['href']
@@ -173,25 +175,29 @@ def build_service_key_audit_header_row(b_audit_sheet):
     b_audit_sheet["H1"].fill = HeaderColorFill
     b_audit_sheet["H1"].font = Font(bold=True)
 
-    b_audit_sheet["I1"] = "Service Instance Name"
+    b_audit_sheet["I1"] = "Bound App"
     b_audit_sheet["I1"].fill = HeaderColorFill
     b_audit_sheet["I1"].font = Font(bold=True)
 
-    b_audit_sheet["J1"] = "Service Plan Name"
+    b_audit_sheet["J1"] = "Service Instance Name"
     b_audit_sheet["J1"].fill = HeaderColorFill
     b_audit_sheet["J1"].font = Font(bold=True)
 
-    b_audit_sheet["K1"] = "Service Plan Description"
+    b_audit_sheet["K1"] = "Service Plan Name"
     b_audit_sheet["K1"].fill = HeaderColorFill
     b_audit_sheet["K1"].font = Font(bold=True)
 
-    b_audit_sheet["L1"] = "Organization GUID"
+    b_audit_sheet["L1"] = "Service Plan Description"
     b_audit_sheet["L1"].fill = HeaderColorFill
     b_audit_sheet["L1"].font = Font(bold=True)
 
-    b_audit_sheet["M1"] = "Space GUID"
+    b_audit_sheet["M1"] = "Organization GUID"
     b_audit_sheet["M1"].fill = HeaderColorFill
     b_audit_sheet["M1"].font = Font(bold=True)
+
+    b_audit_sheet["N1"] = "Space GUID"
+    b_audit_sheet["N1"].fill = HeaderColorFill
+    b_audit_sheet["N1"].font = Font(bold=True)
 
     return
 
@@ -204,11 +210,10 @@ def service_key_audit(org_name, space_names, binding_type_filter, b_audit_sheet,
     print("Auditing service key information...")
     print("==================================================================")
     
-    data_json = run_api_rtn_json("/v3/service_credential_bindings?per_page=" + str(per_page) +"")
+    data_json = run_api_rtn_json("/v3/service_credential_bindings?include=app&per_page=" + str(per_page) +"")
     new_data_obj = {}
     new_data_obj["resources"] = []
 
-    
     ExcelRowRef = 1
     for d in data_json["resources"]:
         print(ExcelRowRef)
@@ -227,6 +232,20 @@ def service_key_audit(org_name, space_names, binding_type_filter, b_audit_sheet,
             new_data_obj_entry["org_name"] = org_space_info_lkup["org_name"]
             new_data_obj_entry["space_name"] = org_space_info_lkup["space_name"]
             new_data_obj_entry["type"] = d["type"]
+
+            #I built this section before knowing its a one to one match; leaving as-is for now.
+            bounded_apps = ""
+            if d["type"] == "app":
+                if d["relationships"] is not None and d["relationships"]["app"] is not None and d["relationships"]["app"]["data"] is not None and d["relationships"]["app"]["data"]["guid"] is not None:
+                    app_guid = d["relationships"]["app"]["data"]["guid"]
+                    for relationship in data_json["apps"]:
+                        if relationship["guid"] == app_guid:
+                            if len(bounded_apps) == 0:
+                                bounded_apps = relationship["name"]
+                            elif len(bounded_apps) > 0:
+                                bounded_apps = bounded_apps + ", " + relationship["name"]
+            new_data_obj_entry["bounded_apps"] = bounded_apps
+
             new_data_obj_entry["name"] = d["name"]
             temp_datetime = dateutil.parser.parse(d["created_at"])
             #temp_datetime = temp_datetime.strftime("%Y-%m-%d %H:%M:%S")
@@ -260,8 +279,12 @@ def service_key_audit(org_name, space_names, binding_type_filter, b_audit_sheet,
        b_audit_sheet["B" + str(ExcelRowRef)] = d["space_name"]
        b_audit_sheet["C" + str(ExcelRowRef)] = d["type"]
        b_audit_sheet["D" + str(ExcelRowRef)] = d["name"]
+
        b_audit_sheet["E" + str(ExcelRowRef)] = d["created_at"]
        b_audit_sheet["F" + str(ExcelRowRef)] = d["updated_at"]
+       b_audit_sheet["G" + str(ExcelRowRef)] = d["expires_at"]
+       b_audit_sheet["H" + str(ExcelRowRef)] = d["expires_in_num_of_days"]
+
        if d["updated_at"] is not None and d["updated_at"] != "":
             temp_datetime = dateutil.parser.parse(d["updated_at"])
             if temp_datetime.replace(tzinfo=None) < datetime.now()-timedelta(90):
@@ -269,13 +292,12 @@ def service_key_audit(org_name, space_names, binding_type_filter, b_audit_sheet,
                 b_audit_sheet["G" + str(ExcelRowRef)].font = Font(color='FF0000', bold=True)
                 b_audit_sheet["H" + str(ExcelRowRef)].font = Font(color='FF0000', bold=True)
 
-       b_audit_sheet["G" + str(ExcelRowRef)] = d["expires_at"]
-       b_audit_sheet["H" + str(ExcelRowRef)] = d["expires_in_num_of_days"]
-       b_audit_sheet["I" + str(ExcelRowRef)] = d["service_instance_name"]
-       b_audit_sheet["J" + str(ExcelRowRef)] = d["service_plan_name"]
-       b_audit_sheet["K" + str(ExcelRowRef)] = d["service_plan_description"]
-       b_audit_sheet["L" + str(ExcelRowRef)] = d["org_guid"]
-       b_audit_sheet["M" + str(ExcelRowRef)] = d["space_guid"]
+       b_audit_sheet["I" + str(ExcelRowRef)] = d["bounded_apps"]
+       b_audit_sheet["J" + str(ExcelRowRef)] = d["service_instance_name"]
+       b_audit_sheet["K" + str(ExcelRowRef)] = d["service_plan_name"]
+       b_audit_sheet["L" + str(ExcelRowRef)] = d["service_plan_description"]
+       b_audit_sheet["M" + str(ExcelRowRef)] = d["org_guid"]
+       b_audit_sheet["N" + str(ExcelRowRef)] = d["space_guid"]
     
     # Let's attempt to make the column widths more reasonable by default.
     for col in b_audit_sheet.columns:
