@@ -5,6 +5,7 @@ import hashlib
 
 start_path = os.getcwd()
 per_page = 5000
+end_point_version = '/v3/'
 
 ######################################################################################################
 # Generic command line functions.
