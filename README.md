@@ -7,18 +7,12 @@
 This repository contains miscellaneous scripts that can be used to audit various aspects of Cloud Foundry from an organization, space, or application-level perspective. At this time, the following main features/scripts are supported:
 
 | Feature/Script| Description |
-
 | --- | ----------- |
-
 | Buildpack inspector| Obtains the AS-IS buildpack information for applications your account has access to. This includes identifying (and color coding/flag) applications using out of date buildpacks.|
-
 | Configuration inspector| Obtains the AS-IS Cloud Foundry organization, space, application, and service information that your account has access to. Pair this with a previous version of the output and it will allow you to see changes to your environment which can really help with auditing activities. <br><br>Pair this with the results from our [Cloud Foundry Audit Events](https://github.com/Eastern-Research-Group/cloudfoundry_audit_events) script and you’ll obtain complete visibility into all the actions that took place from the baseline resulting in the latest configuration.|
-
 | Application resource inspector| Obtains AS-IS application-level settings including organization, space, application name, number of application instances, memory, and diskspace. |
-
 | Service account key check| Obtains AS-IS information about service keys (e.g., last update date) to help teams determine if keys need to be rotated (i.e. 60 or 90 day policy). |
-
-| Log Drain service check| Identify applications that have a log drain service bound to them.  This script enables you to perform regular audits against your Cloud Foundry environment to ensure applications are configured to drain information to an external logging endpoint (e.g., Splunk). Typically to meet M-21-31 requirements.|
+| Log Drain service check| Identify applications that have a log drain service bound to them.  This script enables you to perform regular audits against your Cloud Foundry environment to ensure applications are configured to drain information to an external logging endpoint (e.g., Splunk). Typically to meet M-21-31 requirements. |
 
 ## Reason for its creation
 
@@ -156,6 +150,7 @@ python cf_service_account_key_check.py --cf_api_endpoint=https://api.fr.cloud.go
 
 -  **binding_type** - Values {app or key} or just don't use this parameter. Cloud Foundry applications and service_accounts bind to services, this allows you to filter which ones get included into the report_file.
 
+---
   
 ## Log Drain check
 
