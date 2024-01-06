@@ -166,7 +166,9 @@ python cf_log_drain_check.py --log_drain_url="syslog-tls://splunk.erg.com:1234" 
 -  **log_drain_url** - The full URL/hyperlink (with protocol and port) to external drain service. This should match the URL/hyperlink used when your log drain service was configured.
 
 -  **report_file** - Local path and filename output should be saved to.
-
+-  **log_drain_url** - The full URL/hyperlink (with protocol and port) to external drain service. This should match the URL/hyperlink used when your log drain service was configured.
+-  **organization** - (optional) The organization name to filter results by.
+-  **spaces** - (optional) A comma delimited string of space names to filter the results by.
 
 ---
 

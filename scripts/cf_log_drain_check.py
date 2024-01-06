@@ -1,6 +1,5 @@
 # Pretty quick script/copied and pasted from others to meet the requirement of determining which apps are bound to a log drain.
 # Ended up loading all service instances and creditionals at once as it seemed faster than calling the API mutliple times (per space,app).
-# Didn't implement filtering on orgs, spaces, apps but it should be easy to do so if it becomes a requirement.
 # An additional check could be added to show log drains not bound to an app but that wasn't my initial scope.
 
 import sys
@@ -140,7 +139,7 @@ def obtain_cf_data_for_entire_space(org_guid, org_name, space_guid, space_name):
 
 ######################################################################################################
 ######################################################################################################
-def obtain_cf_data_for_entire_org(org_guid, org_name):
+def obtain_cf_data_for_entire_org(org_guid, org_name, space_names):
     spacesjson = run_api_cmd_resources(
         "/v3/spaces?order_by=name&per_page="
         + str(per_page)
@@ -150,7 +149,8 @@ def obtain_cf_data_for_entire_org(org_guid, org_name):
 
     print("Obtaining space data for " + org_name)
     for d in spacesjson["resources"]:
-        obtain_cf_data_for_entire_space(org_guid, org_name, d["guid"], d["name"])
+        if space_names.replace(" ","") == ",," or ","+d["name"].lower()+"," in space_names:
+            obtain_cf_data_for_entire_space(org_guid, org_name, d["guid"], d["name"])
 
     return
 
@@ -250,8 +250,8 @@ def export_results(output_file):
     print("Exporting results")
 
     Excelworkbook = Workbook()
-    audit_sheet = Excelworkbook.create_sheet("Log Drain Audit", 1)
-    Excelworkbook.active = 1
+    audit_sheet = Excelworkbook.active
+    audit_sheet.title = "Log Drain Audit"
 
     HeaderColorFill = PatternFill(fgColor="C0C0C0", fill_type="solid")
 
@@ -339,8 +339,8 @@ print("")
 
 full_cmd_arguments = sys.argv
 argument_list = full_cmd_arguments[1:]
-short_options = "l:f:"
-long_options = ["log_drain_url=", "report_file="]
+short_options = "o:s:l:f:"
+long_options = ["organization=","spaces=","log_drain_url=", "report_file="]
 
 try:
     arguments, values = getopt.getopt(argument_list, short_options, long_options)
@@ -350,11 +350,17 @@ except getopt.error as err:
 
 log_drain_url = ""
 output_file = ""
+o_name = ""
+s_names = ""
 for current_argument, current_value in arguments:
     if current_argument in ("-f", "--report_file"):
         output_file = current_value
     if current_argument in ("-l", "--log_drain_url"):
         log_drain_url = current_value
+    if current_argument in ("-o", "--organization"):
+        o_name = current_value
+    if current_argument in ("-s", "--spaces"):
+        s_names = current_value
 
 if log_drain_url == "":
     print("A log drain URL must be specified.")
@@ -364,12 +370,17 @@ if output_file == "":
     print("An MS Excel based output file (i.e., .xlsx) must be specified.")
     sys.exit(-2)
 
+if o_name == "" and s_names != "":
+    print("Cannot specify spaces without specifying a organization.")
+    sys.exit(-3)
+
 orgjson = run_api_cmd_resources(
     "/v3/organizations?order_by=name&per_page=" + str(per_page) + ""
 )
 
 for d in orgjson["resources"]:
-    obtain_cf_data_for_entire_org(d["guid"], d["name"])
+    if o_name == "" or d["name"].lower() == o_name:
+        obtain_cf_data_for_entire_org(d["guid"], d["name"],","+s_names+",".replace(" ", ""))
 
 obtain_log_drain_service_information(log_drain_url)
 
