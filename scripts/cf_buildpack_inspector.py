@@ -455,7 +455,7 @@ def start(org_name, space_names, output_file, cf_api_endpoint):
 full_cmd_arguments = sys.argv
 argument_list = full_cmd_arguments[1:]
 short_options = "o:s:f:c:"
-long_options = ["organization=", "space=", "report_file=", "cf_api_endpoint="]
+long_options = ["organization=", "spaces=", "report_file=", "cf_api_endpoint="]
 output_file = ""
 cf_api_endpoint = ""
 
@@ -472,7 +472,7 @@ s_names = ""
 for current_argument, current_value in arguments:
     if current_argument in ("-o", "--organization"):
         o_name = current_value
-    if current_argument in ("-s", "--space"):
+    if current_argument in ("-s", "--spaces"):
         s_names = current_value
     if current_argument in ("-f", "--report_file"):
         output_file = current_value

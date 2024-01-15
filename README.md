@@ -63,7 +63,7 @@ python cf_buildpack_inspector.py --report_file=C:\Users\Cooper\Desktop\2021-05-0
 
 -  **organization** - (optional) The organization name to filter the results by.
 
--  **space** - (optional) Comma delimited list of space names to filter the results by.
+-  **spaces** - (optional) Comma delimited list of space names to filter the results by. (Changed from space to spaces 2024-01-14)
 
 -  **report_file** - file path to where to save the MS Excel based results.
 
