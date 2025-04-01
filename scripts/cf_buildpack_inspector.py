@@ -179,7 +179,12 @@ def buildpack_by_app_check(org_query, space_query, b_audit_sheet, buildpacks_jso
                 droplet_txt = run_api_cmd_rtn_json(["cf", "curl", remove_prefix(
                     d["links"]["current_droplet"]["href"], cf_api_endpoint)])
                 droplet_json = json.loads(droplet_txt)
-                app_stack = droplet_json["stack"]
+
+                if "stack" in droplet_json and droplet_json["stack"] is not None:
+                    app_stack = droplet_json["stack"]
+                else:
+                    app_stack = "UNKNOWN"
+                
                 if "buildpacks" in droplet_json:
                     if droplet_json["buildpacks"] == None:
                         number_of_app_buildpacks = 0
